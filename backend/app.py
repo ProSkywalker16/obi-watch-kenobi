@@ -8,7 +8,9 @@ import hashlib
 from google import genai
 import secrets
 from utils.ipinfofetcher import getIPDetails
-from datetime import timedelta
+from utils.forgot_password import send_verification_email
+from datetime import timedelta, datetime
+# ─── Imports ──────────────────────────────────────────────────────────────────
 
 # Load environment variables
 load_dotenv()
@@ -174,6 +176,105 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 # ─── Login System ─────────────────────────────────────────────────────────────
+
+@app.route('/forgot_password', methods=['POST'])
+def forgot_password():  
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return jsonify({'error': 'Missing email'}), 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    code = send_verification_email(email)
+    if not code:
+        return jsonify({'error': 'Failed to send verification email. Please contact administrator.'}), 500
+    else:
+        # Store the code in the database for verification later
+        cursor = mysql.connection.cursor()
+        prev_req = cursor.execute("SELECT * FROM pwd_resets WHERE email = %s", (email,))
+        if not prev_req:
+            cursor.execute(
+                "INSERT INTO pwd_resets (user_id, email, gen_code, gen_time) VALUES (%s, %s, %s, %s)",
+                (user[0], email, code, datetime.now())
+            )
+        else:
+            cursor.execute(
+                "UPDATE pwd_resets SET gen_code = %s, gen_time = %s WHERE email = %s",
+                (code, datetime.now(),email)
+            )
+        mysql.connection.commit()
+        cursor.close()
+    return jsonify({'message': 'Email verification code sent'}), 200
+
+@app.route('/verify_code', methods=['POST'])
+def verify_code():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    code = data.get('code', '')
+
+    if not email or not code:
+        return jsonify({'error': 'Missing email or code'}), 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM pwd_resets WHERE email = %s", (email,))
+    reset_request = cursor.fetchone()
+    cursor.close()
+    if not reset_request:
+        return jsonify({'error': 'No password reset request found for this email.'}), 404
+    
+    # Check if the code is valid and not expired (assuming 15 minutes validity)
+    gen_time = reset_request[5]  # gen_time is the 6th column in pwd_resets table
+    if (datetime.now() - gen_time).total_seconds() > 600:  # 10 minutes
+        return jsonify({'error': 'Code expired. Please request a new code.'}), 400
+    elif reset_request[2] != code:
+        return jsonify({'error': 'Invalid code'}), 400
+
+    # Code is valid, allow password reset
+    return jsonify({'message': 'Code verified successfully. You can now reset your password.'}), 200
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    new_password = data.get('new_password', '')
+
+    if not email or not new_password:
+        return jsonify({'error': 'Missing email or new password'}), 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM pwd_resets WHERE email = %s", (email,))
+    reset_request = cursor.fetchone()
+    cursor.close()
+    if not reset_request:
+        return jsonify({'error': 'No password reset request found for this email.'}), 404
+
+    salt = os.urandom(16).hex()
+    hashed_password = hashlib.scrypt(
+        new_password.encode(), salt=bytes.fromhex(salt), n=16384, r=8, p=1
+    ).hex()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "UPDATE users SET password = %s, salt = %s WHERE email = %s",
+        (hashed_password, salt, email)
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE pwd_resets SET last_changed_dt = %s, change_count = %s WHERE email = %s", (datetime.now(), reset_request[4] + 1, email))
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({'message': 'Password reset successful'}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
