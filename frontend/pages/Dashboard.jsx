@@ -29,14 +29,6 @@ const Dashboard = () => {
   const pieChart = useRef(null);
 
   useEffect(() => {
-    if (!username) {
-      const name = prompt("Welcome! Please enter your name:") || "Guest";
-      setUsername(name);
-      localStorage.setItem("username", name);
-    }
-  }, []);
-
-  useEffect(() => {
     fetchLogs();
     const interval = setInterval(fetchLogs, 10000);
     return () => clearInterval(interval);
