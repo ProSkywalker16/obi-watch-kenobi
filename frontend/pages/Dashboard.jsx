@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Chart from "chart.js/auto";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; 
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import Sidebar from '../components/Sidebar';
 
@@ -15,6 +15,11 @@ const severityColors = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate(); // ✅ correctly inside the component now
+  const handleClick = () => {
+    navigate('/actions'); // ✅ working route navigation
+  };
+
   const [username, setUsername] = useState(localStorage.getItem("username") || "");
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState("");
@@ -40,7 +45,7 @@ const Dashboard = () => {
   const fetchLogs = async () => {
     try {
       //PLEASE CHECK THE IP WHICH IS SHOWING DURING python app.py 
-      
+
       // const res = await fetch("http://192.168.31.160:5000/log_storage"); // shiva port
       //const res = await fetch("http://127.0.0.1:5000/log_storage");     // honurag port
       const res = await fetch("http://127.0.0.1:5000/log_storage");     // proskywalker port
@@ -101,7 +106,6 @@ const Dashboard = () => {
     });
   };
 
-
   const handleLogout = () => {
     localStorage.removeItem("username");
     location.reload();
@@ -113,13 +117,13 @@ const Dashboard = () => {
     return (!filter || sev === filter) && (!search || msg.includes(search));
   });
 
-
   const isIPv4 = (ip) => {
     const regex = /^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$/;
     return regex.test(ip);
   };
+
   return (
-    <div className=" w-full text-white">
+    <div className="w-full text-white">
       {/* <header>
       <SignedOut>
         <SignInButton />
@@ -128,6 +132,7 @@ const Dashboard = () => {
         <UserButton />
       </SignedIn>
     </header> */}
+
       {/* <header className=" rounded-lg mb-5 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Log Tracker</h1>
         <div className="text-beige text-sm text-right">
@@ -143,7 +148,6 @@ const Dashboard = () => {
         </nav>
       </header> */}
 
-
       <main className="sm:ml-28 text-white p-5 rounded shadow-md">
         <div className="flex flex-col lg:flex-row gap-6">
 
@@ -156,7 +160,13 @@ const Dashboard = () => {
               <h2 className="text-lg font-semibold mb-2">
                 Log Data (<span className="text-red-600">{filteredLogs.length}</span>)
               </h2>
-
+              { }
+              <button
+                onClick={handleClick}
+                className="ml-150 bg-red-700 text-beige px-2 py-1 rounded"
+              >
+                Actions
+              </button>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -170,6 +180,7 @@ const Dashboard = () => {
                 <option value="CRITICAL">CRITICAL</option>
               </select>
             </div>
+
             <table className="min-w-full text-sm text-left text-white border border-white/20 rounded-md border-collapse">
               <thead className="text-xs uppercase bg-[#19163F] text-white/80">
                 <tr>
@@ -183,20 +194,12 @@ const Dashboard = () => {
               <tbody className="bg-[#0D0B36]">
                 {filteredLogs.slice(-5).map((r, idx) => {
                   const sev = String(r[3]).toUpperCase().trim();
-                  const sevColor = {
-                    INFO: "#800080",
-                    WARNING: "#A52A2A",
-                    ERROR: "#FF0000",
-                    HIGH: "#FFA500",
-                    LOW: "#008000",
-                    MEDIUM: "#FFD700",
-                    CRITICAL: "#FF0000",
-                  }[sev] || "#FFF";
+                  const sevColor = severityColors[sev] || "#FFF";
                   return (
                     <tr
                       key={idx}
                       className="hover:bg-indigo-950 transition"
-                      style={{ borderLeft: `5px solid ${severityColors[sev] || "#cccccc"}` }}
+                      style={{ borderLeft: `5px solid ${sevColor}` }}
                     >
                       <td className="px-4 py-3 border border-white/20">{r[0]}</td>
                       <td className="px-4 py-3 border border-white/20">{r[1]}</td>
@@ -205,29 +208,24 @@ const Dashboard = () => {
                         {sev}
                       </td>
                       <td className="px-4 py-3 border border-white/20">
-                        {isIPv4(r[4]) ? (<Link
-                          to={`/log_storage/ipinfo/${r[4]}`}>
-                          {r[4]}
-                        </Link>) :
-                          (<p>{r[4]}</p>)
-                        }
+                        {isIPv4(r[4]) ? (
+                          <Link to={`/log_storage/ipinfo/${r[4]}`}>{r[4]}</Link>
+                        ) : (
+                          <p>{r[4]}</p>
+                        )}
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-
-
           </div>
         </div>
+
         <footer className="text-center text-sm text-slate-400 mt-10">
           &copy; 2025 Log Tracker by Proskywalker, Honurag Hottacharjee, Holy Father aka RIYAL POPE..
         </footer>
       </main>
-
-
-
     </div>
   );
 };

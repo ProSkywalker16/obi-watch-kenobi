@@ -102,29 +102,17 @@ def filter_log_storage():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
-        #if not model:
-        #    return jsonify({"answer": "AI service is not available. Please try again later."})
-
         question = request.json.get('question', '').strip()
         if not question:
             return jsonify({"answer": "Please provide a question."})
 
-        #logger.info(f" Received question: {question}")
+        cursor = mysql.connection.cursor()
+        cursor.execute("DESCRIBE log_storage")
+        schema = cursor.fetchall()
+        cursor.execute('SELECT * FROM log_storage')
+        sample_data = cursor.fetchall()
+        cursor.close()
 
-        try:
-            #conn = get_db_connection()
-            #cursor = conn.cursor()
-            cursor = mysql.connection.cursor()
-            cursor.execute("DESCRIBE log_storage")
-            schema = cursor.fetchall()
-            cursor.execute('SELECT * FROM log_storage')
-            sample_data = cursor.fetchall()
-            cursor.close()
-            #return jsonify(sample_data)
-        except Exception as db_error:
-            return jsonify({"answer": "Database connection failed."})
-    
-        
         prompt = f"""
             You are a helpful assistant for a SIEM system. Answer questions about the 'logs' table.
 
@@ -139,16 +127,6 @@ def chat():
 
             Respond in a clear, user-friendly way without showing SQL code.
         """
-        '''
-        # Generate content with Gemini
-        try:
-            logger.info(" Sending prompt to Gemini...")
-            response = model.generate_content(prompt)
-            return jsonify({"answer": response.text})
-        except Exception as ai_error:
-            logger.error(f" Gemini API error: {str(ai_error)}")
-            return jsonify({"answer": "AI failed to generate a response. Please try again."})
-        '''
         try:
             response = client.models.generate_content(
                 model="models/gemini-1.5-flash-8b",
@@ -237,6 +215,32 @@ def protected():
     if session.get('authenticated'):
         return jsonify({'message': f"Welcome, {session.get('user_email')}!"}), 200
     return jsonify({'error': 'Unauthorized'}), 401
+
+# ─── New endpoint to fetch actions ────────────────────────────────────────────
+@app.route('/actions', methods=['GET'])
+def get_actions():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT id, ip, activity, severity, timestamp FROM actions ORDER BY timestamp DESC')
+        rows = cursor.fetchall()
+        cursor.close()
+
+        actions_list = [
+            {
+                "id": row[0],
+                "ip": row[1],
+                "activity": row[2],
+                "severity": row[3],
+                "timestamp": row[4].strftime('%Y-%m-%d %H:%M:%S') if row[4] else None
+            }
+            for row in rows
+        ]
+
+        return jsonify(actions_list)
+
+    except Exception as e:
+        print("Error fetching actions:", e)
+        return jsonify({"error": "Failed to fetch actions"}), 500
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 
