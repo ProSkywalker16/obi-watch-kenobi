@@ -6,7 +6,7 @@ import MainLayout from '../layout/MainLayout';
 import Settings from '../pages/Settings';
 import Login from '../pages/Login';
 import Actions from '../pages/Actions';
-// import IPInfo from '../pages/IPInfo';
+import IPInfo from '../pages/IPInfo';
 import React from 'react';
 import Chatbot from '../pages/Chatbot';
 
@@ -57,7 +57,7 @@ const appRouter = createBrowserRouter([
           </PrivateRoute>
         )
       },
-      /*{
+      {
         path: '/log_storage/ipinfo/:ip',
         element: (
           <PrivateRoute>
@@ -65,7 +65,6 @@ const appRouter = createBrowserRouter([
           </PrivateRoute>
         )
       }
-      */
     ]
   },
   {
