@@ -79,8 +79,8 @@ const Actions = () => {
       )}
 
       <footer className="text-center text-sm text-slate-400 mt-10">
-        &copy; 2025 Log Tracker Team – Proskywalker, Honurag, and Holy Father (Riyal Pope)
-      </footer>
+          &copy; 2025 Obi-Watch-Kenobi by Proskywalker, Honurag Hottacharjee, Felle Kelabo and Holy Father aka RIYAL POPE..
+        </footer>
     </div>
   );
 };
