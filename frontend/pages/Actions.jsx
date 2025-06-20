@@ -1,4 +1,3 @@
-// src/pages/Actions.jsx
 import React, { useEffect, useState } from "react";
 
 const Actions = () => {
