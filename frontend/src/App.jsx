@@ -5,9 +5,9 @@ import MainLayout from '../layout/MainLayout';
 // import Database from '../pages/Database';
 import Settings from '../pages/Settings';
 import Login from '../pages/Login';
-import IPInfo from '../pages/IPInfo';
+//import IPInfo from '../pages/IPInfo';
 import React from 'react';
-import Chatbot from '../pages/Chatbot';
+//import Chatbot from '../pages/Chatbot';
 
 // Route guard component
 const PrivateRoute = ({ children }) => {
@@ -33,14 +33,6 @@ const appRouter = createBrowserRouter([
         )
       },
       {
-        path: '/chatbot',
-        element: (
-          <PrivateRoute>
-            <Chatbot />
-          </PrivateRoute>
-        )
-      },
-      {
         path: '/settings',
         element: (
           <PrivateRoute>
@@ -48,6 +40,15 @@ const appRouter = createBrowserRouter([
           </PrivateRoute>
         )
       },
+      /*{
+        path: '/chatbot',
+        element: (
+          <PrivateRoute>
+            <Chatbot />
+          </PrivateRoute>
+        )
+      },
+      
       {
         path: '/log_storage/ipinfo/:ip',
         element: (
@@ -55,7 +56,7 @@ const appRouter = createBrowserRouter([
             <IPInfo />
           </PrivateRoute>
         )
-      }
+      }*/
     ]
 	},
   {

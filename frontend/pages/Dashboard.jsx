@@ -39,10 +39,11 @@ const Dashboard = () => {
 
   const fetchLogs = async () => {
     try {
-      // const res = await fetch("http://192.168.0.170:5000/log_storage");
-      // const res = await fetch("http://192.168.0.170:5000/log_storage");    // proskywalker port
+      //PLEASE CHECK THE IP WHICH IS SHOWING DURING python app.py 
+      
       // const res = await fetch("http://192.168.31.160:5000/log_storage"); // shiva port
-      const res = await fetch("http://192.168.0.137:5000/log_storage");     // honurag port
+      //const res = await fetch("http://127.0.0.1:5000/log_storage");     // honurag port
+      const res = await fetch("http://127.0.0.1:5000/log_storage");     // proskywalker port
       const data = await res.json();
       setLogs(data);
       setLastUpdate(new Date().toLocaleTimeString());
