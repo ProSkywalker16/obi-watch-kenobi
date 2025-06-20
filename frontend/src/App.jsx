@@ -49,7 +49,6 @@ const appRouter = createBrowserRouter([
           </PrivateRoute>
         )
       },
-      /*
       {
         path: '/chatbot',
         element: (
@@ -58,7 +57,7 @@ const appRouter = createBrowserRouter([
           </PrivateRoute>
         )
       },
-      {
+      /*{
         path: '/log_storage/ipinfo/:ip',
         element: (
           <PrivateRoute>
