@@ -274,7 +274,7 @@ def reset_password():
     mysql.connection.commit()
     cursor.close()
 
-    return jsonify({'message': 'Password reset successful'}), 200
+    return jsonify({'message': 'Password reset successful! You can now log in.'}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
