@@ -29,7 +29,7 @@ const Actions = () => {
     <div className="p-6 sm:ml-28 text-white">
       <header className="flex flex-col md:flex-row justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Actions</h1>
+          <h1 className="text-3xl text-red-700 font-bold">Actions</h1>
           <p className="text-sm text-gray-400">
             Last updated: {lastUpdate || "Loading..."}
           </p>

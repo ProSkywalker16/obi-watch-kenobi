@@ -160,7 +160,7 @@ const Dashboard = () => {
               <h2 className="text-lg font-semibold mb-2">
                 Log Data (<span className="text-red-600">{filteredLogs.length}</span>)
               </h2>
-              {/* ✅ Fixed button that navigates to /actions */}
+              
               <button
                 onClick={handleClick}
                 className="ml-150 bg-red-700 text-beige px-2 py-1 rounded"
