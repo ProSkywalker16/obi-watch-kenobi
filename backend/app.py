@@ -322,7 +322,7 @@ def protected():
 def get_actions():
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT id, ip, activity, severity, timestamp FROM actions ORDER BY timestamp DESC')
+        cursor.execute('SELECT id, ip, activity, severity, timestamp FROM actions ORDER BY timestamp')
         rows = cursor.fetchall()
         cursor.close()
 
