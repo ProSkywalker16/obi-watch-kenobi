@@ -148,7 +148,7 @@ function ChatBot() {
       <div className="flex justify-end">
         <button
           onClick={handleClear}
-          className="text-sm text-red-600 hover:underline"
+          className="text-sm bg-red-600 p-2 text-white rounded-xl hover:underline"
         >
           Clear Chat History
         </button>
