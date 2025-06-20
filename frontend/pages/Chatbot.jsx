@@ -1,22 +1,31 @@
 // src/components/ChatBot.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { addMessage, getAllMessages } from '../db';  // your Dexie helpers
+import { addMessage, getAllMessages, clearMessages } from '../db.js';  // Dexie helpers
 
 function ChatBot() {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Refs for scrolling
+  const containerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   // On mount: load saved messages (or create greeting)
   useEffect(() => {
     (async () => {
-      const stored = await getAllMessages(); 
+      let stored = await getAllMessages();
+
+      // Deduplicate messages
+      const unique = [];
+      stored.forEach(m => {
+        if (!unique.find(x => x.role === m.role && x.text === m.text)) unique.push(m);
+      });
+      stored = unique;
+
       if (stored.length) {
-        setMessages(
-          stored.map(({ role, text }) => ({ role, text }))
-        );
+        setMessages(stored.map(({ role, text }) => ({ role, text })));
       } else {
         const greeting = {
           role: 'bot',
@@ -30,13 +39,19 @@ function ChatBot() {
 
   // Auto-scroll whenever messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, loading]);
 
   const handleResponse = async () => {
     if (!prompt.trim() || loading) return;
 
-    // 1) Add user message
     const userMsg = { role: 'user', text: prompt };
     setMessages(prev => [...prev, userMsg]);
     await addMessage(userMsg);
@@ -45,32 +60,22 @@ function ChatBot() {
     setPrompt('');
 
     try {
-      // 2) Send to backend
       const { data } = await axios.post(
         'http://127.0.0.1:5000/api/chat',
         { question: prompt },
         { timeout: 15000 }
       );
 
-      // 3) Add bot reply
-      const botMsg = {
-        role: 'bot',
-        text: data.answer || "I didn't understand that. Could you rephrase?",
-      };
+      const botMsg = { role: 'bot', text: data.answer || "I didn't understand that. Could you rephrase?" };
       setMessages(prev => [...prev, botMsg]);
       await addMessage(botMsg);
 
     } catch (error) {
       console.error('API Error:', error);
-
       let errorText = 'Error processing your request. Please try again.';
-      if (error.code === 'ECONNABORTED') {
-        errorText = 'Request timed out. Please try again.';
-      } else if (error.response?.data?.answer) {
-        errorText = error.response.data.answer;
-      } else if (error.request) {
-        errorText = 'Unable to connect to the server. Please check your connection.';
-      }
+      if (error.code === 'ECONNABORTED') errorText = 'Request timed out. Please try again.';
+      else if (error.response?.data?.answer) errorText = error.response.data.answer;
+      else if (error.request) errorText = 'Unable to connect to the server. Please check your connection.';
 
       const errMsg = { role: 'bot', text: errorText };
       setMessages(prev => [...prev, errMsg]);
@@ -83,9 +88,15 @@ function ChatBot() {
 
   const handleKeyDown = e => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleResponse();
+      e.preventDefault(); handleResponse();
     }
+  };
+
+  const handleClear = async () => {
+    await clearMessages();
+    const greeting = { role: 'bot', text: 'Hello! I can help you query your users database. Ask me anything!' };
+    setMessages([greeting]);
+    await addMessage(greeting);
   };
 
   return (
@@ -94,15 +105,14 @@ function ChatBot() {
         Database Chat Assistant – built using Gemini API
       </h1>
 
-      <div className="space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto mb-4 flex flex-col">
+      <div
+        ref={containerRef}
+        className="space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto mb-4 flex flex-col"
+      >
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-3 rounded-xl w-fit max-w-xl ${
-              msg.role === 'user'
-                ? 'bg-blue-600 self-end ml-auto'
-                : 'bg-[#26008f] self-start'
-            }`}
+            className={`p-3 rounded-xl w-fit max-w-xl ${msg.role === 'user' ? 'bg-blue-600 self-end ml-auto' : 'bg-[#26008f] self-start'}`}
           >
             <p className="text-gray-200 whitespace-pre-wrap">{msg.text}</p>
           </div>
@@ -113,11 +123,10 @@ function ChatBot() {
             <p className="text-gray-500">Thinking...</p>
           </div>
         )}
-
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex text-white items-center space-x-2">
+      <div className="flex text-white items-center space-x-2 mb-4">
         <input
           type="text"
           placeholder="Ask about users..."
@@ -133,6 +142,15 @@ function ChatBot() {
           className="bg-blue-600 hover:bg-blue-700 font-semibold px-4 py-2 rounded-xl disabled:opacity-50"
         >
           Send
+        </button>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleClear}
+          className="text-sm text-red-600 hover:underline"
+        >
+          Clear Chat History
         </button>
       </div>
     </div>
