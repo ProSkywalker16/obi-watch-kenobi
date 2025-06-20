@@ -8,7 +8,7 @@ import Login from '../pages/Login';
 import Actions from '../pages/Actions';
 // import IPInfo from '../pages/IPInfo';
 import React from 'react';
-// import Chatbot from '../pages/Chatbot';
+import Chatbot from '../pages/Chatbot';
 
 // Route guard component
 const PrivateRoute = ({ children }) => {
