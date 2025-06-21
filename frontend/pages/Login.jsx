@@ -125,7 +125,7 @@ const AuthForm = () => {
         { withCredentials: true }
       ).then((res) => {
         setLoading(false);
-        setMessage(res.data.message || "Verification successful! You reset your password now.");
+        setMessage(res.data.message || "Verification successful! You can reset your password now.");
         setError("");
         setIsEmailVerified(true);
     }).catch((err) => { setLoading(false); setError(err.response?.data?.message || "Verification failed"); });

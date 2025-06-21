@@ -193,7 +193,7 @@ def forgot_password():
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    code = send_verification_email(email)
+    code = send_verification_email(email, "Password Reset Request: Your Verification Code")
     if not code:
         return jsonify({'error': 'Failed to send verification email. Please contact administrator.'}), 500
     else:
@@ -230,7 +230,7 @@ def verify_code():
     if not reset_request:
         return jsonify({'error': 'No password reset request found for this email.'}), 404
     
-    # Check if the code is valid and not expired (assuming 15 minutes validity)
+    # Check if the code is valid and not expired (assuming 10 minutes validity)
     gen_time = reset_request[5]  # gen_time is the 6th column in pwd_resets table
     if (datetime.now() - gen_time).total_seconds() > 600:  # 10 minutes
         return jsonify({'error': 'Code expired. Please request a new code.'}), 400
@@ -316,6 +316,82 @@ def protected():
     if session.get('authenticated'):
         return jsonify({'message': f"Welcome, {session.get('user_email')}!"}), 200
     return jsonify({'error': 'Unauthorized'}), 401
+
+# ─── Root Access Endpoints ────────────────────────────────────────────────
+@app.route('/root_access/check_user', methods=['POST'])
+def check_user():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return jsonify({'error': 'Missing email'}), 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    code = send_verification_email(email, "Root Access Request: Your Verification Code")
+    if not code:
+        return jsonify({'error': 'Failed to send verification email. This action has been recorded.'}), 500
+    else:
+        # Store the code in the database for verification later
+        cursor = mysql.connection.cursor()
+        prev_req = cursor.execute("SELECT * FROM temp_root_access_records WHERE email = %s", (email,))
+        if not prev_req:
+            cursor.execute(
+                "INSERT INTO temp_root_access_records (user_id, email, gen_code, gen_time, last_access_req_time) VALUES (%s, %s, %s, %s, %s)",
+                (user[0], email, code, datetime.now(), datetime.now())
+            )
+        else:
+            cursor.execute(
+                "UPDATE temp_root_access_records SET gen_code = %s, gen_time = %s, access_req_count = access_req_count + 1 WHERE email = %s",
+                (code, datetime.now(),email)
+            )
+        mysql.connection.commit()
+        cursor.close()
+    return jsonify({'message': 'Email verification code sent'}), 200
+
+@app.route('/root_access/verify_code', methods=['POST'])
+def root_access_verify_code():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    code = data.get('code', '')
+
+    if not email or not code:
+        return jsonify({'error': 'Missing email or code'}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM temp_root_access_records WHERE email = %s", (email,))
+        access_root = cursor.fetchone()
+        cursor.close()
+    except Exception as e:
+        return jsonify({'error': 'Database error occurred while fetching root access request.'}), 500
+
+    # Check if the code is valid and not expired (assuming 10 minutes validity)
+    gen_time = access_root[3]  # gen_time is the 4th column in pwd_resets table
+
+    if not access_root or (datetime.now() - gen_time).total_seconds() > 150:
+        return jsonify({'error': 'No recent root access request found for this email.'}), 404
+    
+    if (datetime.now() - gen_time).total_seconds() > 90:  # 10 minutes
+        return jsonify({'error': 'Code expired. Please request a new code.'}), 400
+    elif access_root[2] != code:
+        return jsonify({'error': 'Invalid code'}), 400
+
+    # Code is valid, allow password reset
+    return jsonify({
+        'access_credentials': {
+            'ZeroTier Network ID': os.getenv('ZEROTIER_NETWORK_ID', 'default_network_id'),
+            'Host IP': os.getenv('HOST_IP', 'default_host_ip'),
+            'username': os.getenv('ROOT_USERNAME', 'default_username'),
+            'password': os.getenv('ROOT_PASSWORD', 'default_password'),
+        }
+    }), 200
 
 # ─── New endpoint to fetch actions ────────────────────────────────────────────
 @app.route('/actions', methods=['GET'])

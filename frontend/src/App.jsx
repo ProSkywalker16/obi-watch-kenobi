@@ -7,8 +7,8 @@ import Settings from '../pages/Settings';
 import Login from '../pages/Login';
 import Actions from '../pages/Actions';
 import IPInfo from '../pages/IPInfo';
-import React from 'react';
 import Chatbot from '../pages/Chatbot';
+import EmergencyRootAccess from '../pages/EmergencyRootAccess';
 
 // Route guard component
 const PrivateRoute = ({ children }) => {
@@ -30,6 +30,14 @@ const appRouter = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        )
+      },
+      {
+        path: '/emergency_root_access',
+        element: (
+          <PrivateRoute>
+            <EmergencyRootAccess />
           </PrivateRoute>
         )
       },

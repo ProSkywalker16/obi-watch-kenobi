@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TextHoverEffect } from '../components/ui/text-hover-effect';
 import { TypewriterEffectSmooth } from '../components/ui/typewriter-effect';
@@ -88,6 +88,14 @@ function Home() {
               >
                 Terminate Session
               </button>
+            </div>
+            <div className="flex text-white flex-wrap justify-center gap-4 mb-8">
+              <Link
+                to="/emergency_root_access"
+                className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-lg font-medium transition"
+              >
+                Emergency Root Access
+              </Link>
             </div>
           </motion.div>
 
