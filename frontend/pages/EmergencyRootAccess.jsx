@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function EmergencyRootAccess() {
     const [message, setMessage] = useState("");
@@ -65,7 +66,7 @@ function EmergencyRootAccess() {
             return;
         }
         setAccessGranted(true);
-        setMessage(`Verification successful! Your access credentials will be displayed below.\n${accessCredentials}`);
+        setMessage(`Verification successful! Your access credentials will be displayed below.`);
         console.log("Access credentials:", res.data.access_credentials);
         setError("");
         setIsEmailVerified(true);
@@ -86,9 +87,9 @@ function EmergencyRootAccess() {
                 <p className="text-white text-center">
                     This feature is intended for <strong>emergency</strong> situations only. Use with caution.
                 </p>
-                <p className="text-white text-center">
+                {!accessGranted && (<p className="text-white text-center">
                     Verify your identity for security purposes. This action will grant you temporary root access to the system.
-                </p>
+                </p>)}
                 {message && (
                 <div className="text-green-400 bg-green-900/30 px-4 py-2 rounded">
                     {message}
@@ -135,6 +136,23 @@ function EmergencyRootAccess() {
                         {userExists ? (isEmailVerified ? "Access Granted" : "Verify Code") : "Verify User"}
                     </button>
                 </div>
+                {accessGranted && (<div id="popupModal" class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-90 z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+                    <h2 class="text-xl font-semibold mb-4">Root Access Credentials</h2>
+                    <p>Your temporary root access has been granted. Please use it responsibly.</p>
+                    <p>Remember them. These are not saved in the database.</p>
+                    <br />
+                    <ul>
+                        {Object.entries(accessCredentials).map(([key, value]) => (
+                        <li key={key}>{key}: {value}</li>
+                        ))}
+                    </ul>
+                    <br />
+                    <Link to="/dashboard" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                        To Dashboard
+                    </Link>
+                </div>
+                </div>)}
             </div>
         </div>
     );
