@@ -5,7 +5,10 @@ import axios from "axios";
 const AuthForm = () => {
   const navigate = useNavigate();
   const [isRegistering, setIsRegistering] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [userExists, setUserExists] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "", verificationCode: "", newPassword: "" });
   const [secretCode, setSecretCode] = useState("");
   const [askSecretCode, setAskSecretCode] = useState(false); // NEW: whether to ask secret code
   const [error, setError] = useState("");
@@ -73,13 +76,76 @@ const AuthForm = () => {
     }
   };
 
+  const checkUserExists = () => {
+    try {
+      axios.post(
+        "http://localhost:5000/forgot_password",
+        { email: form.email.trim().toLowerCase() },
+        { withCredentials: true }
+      ).then((res) => {
+        setUserExists(true);
+        setForgotPassword(true);
+        setMessage(res.data.message || "User exists. Please enter your verification code.");
+        setIsEmailVerified(false);
+      }).catch((err) => {
+        setUserExists(false);
+        setError(err.response?.data?.message || "Error checking user existence");
+      });
+    } catch (err) {
+      setError(err.response?.data?.error || "Error checking user existence");
+    }
+  };
+
+  const verifyCode = () => {
+    if (!form.verificationCode) {
+      setError("Please enter the verification code");
+      return;
+    }
+
+    try {
+      axios.post(
+        "http://localhost:5000/verify_code",
+        { email: form.email.trim().toLowerCase(), code: form.verificationCode },
+        { withCredentials: true }
+      ).then((res) => {
+        setMessage(res.data.message || "Verification successful! You reset your password now.");
+        setIsEmailVerified(true);
+    }).catch((err) => { setError(err.response?.data?.message || "Verification failed"); });
+    } catch (err) {
+      setError(err.response?.data?.error || "Verification failed");
+    }
+  };
+
+  const resetPassword = () => {
+    if (!form.newPassword) {
+      setError("Please enter your new password");
+      return;
+    }
+
+    try {
+      axios.post(
+        "http://localhost:5000/reset_password",
+        { email: form.email.trim().toLowerCase(), new_password: form.newPassword },
+        { withCredentials: true }
+      ).then((res) => {
+        setForm({ email: "", password: "", confirmPassword: "", verificationCode: "", newPassword: "" });
+        setForgotPassword(false);
+        setUserExists(false);
+        setIsEmailVerified(false);
+        setMessage(res.data.message || "Password reset successful! You can now log in.");
+      }).catch((err) => { setError(err.response?.data?.message || "Error resetting password"); });
+    } catch (err) {
+      setError(err.response?.data?.message || "Password reset failed");
+    }
+  };
+
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a23] to-[#1c1c3c] p-6">
       <div className="bg-white/10 backdrop-blur-md rounded-2xl flex w-full max-w-md flex-col items-center p-8 space-y-6">
         <img src="/logo.jpg" alt="Obi‑Watch‑Kenobi Logo" className="w-35 h-35 mb-4" />
 
         <h2 className="text-3xl font-bold text-white">
-          {isRegistering ? 'Register' : 'Login'}
+          {forgotPassword ? 'Forgot Password' : isRegistering ? 'Register' : 'Login'}
         </h2>
 
         {message && (
@@ -102,7 +168,7 @@ const AuthForm = () => {
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
           />
-
+          {!forgotPassword && (
           <input
             name="password"
             type="password"
@@ -111,7 +177,7 @@ const AuthForm = () => {
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
           />
-
+          )}
           {isRegistering && !askSecretCode && (
             <input
               name="confirmPassword"
@@ -134,16 +200,72 @@ const AuthForm = () => {
               className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
             />
           )}
-
+          {/*Show verification code input only if userExists is true*/}
+          {forgotPassword && userExists && !isEmailVerified && (
+            <input
+              name="verificationCode"
+              type="text"
+              placeholder="Enter Verification Code"
+              value={form.verificationCode}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
+            />
+          )}
+          {forgotPassword && userExists && isEmailVerified && (
+            <input
+              name="newPassword"
+              type="password"
+              placeholder="Enter New Password"
+              value={form.newPassword}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
+            />
+          )}
           {/* Register button behavior changes based on whether secret code is being asked */}
+          {!forgotPassword ? (
           <button
             onClick={isRegistering ? (askSecretCode ? submitRegister : startRegister) : handleLogin}
             className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-full transition"
           >
             {isRegistering ? (askSecretCode ? 'Submit Secret Code' : 'Register') : 'Login'}
+          </button>) : (!userExists ? (
+          <button
+            onClick={checkUserExists}
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-full transition"
+          > 
+            Verify User
           </button>
+          ): (isEmailVerified ? (
+            <button
+              onClick={resetPassword}
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-full transition"
+            >
+              Reset password
+            </button>
+          ): <button
+              onClick={verifyCode}
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-full transition"
+            >
+              Verify Code
+            </button>))
+          }
         </div>
-
+        {!isRegistering && !forgotPassword && (<div className="text-white">
+          <p>
+            <button
+              onClick={() => {
+                setError("");
+                setForgotPassword(true);
+                setUserExists(false);
+                setIsEmailVerified(false);
+                setMessage("Enter your email to receive a verification code.");
+              }}
+              className="underline"
+            >
+              Forgot Password?
+            </button>
+          </p>
+        </div>)}
         <div className="text-white">
           {isRegistering ? (
             <p>
@@ -161,7 +283,7 @@ const AuthForm = () => {
                 Login
               </button>
             </p>
-          ) : (
+          ) : (!forgotPassword && (
             <p>
               Don't have an account?{' '}
               <button
@@ -177,7 +299,7 @@ const AuthForm = () => {
                 Register
               </button>
             </p>
-          )}
+          ))}
         </div>
       </div>
     </div>
