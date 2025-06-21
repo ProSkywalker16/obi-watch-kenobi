@@ -10,7 +10,7 @@ export const TypewriterEffectSmooth = ({
   const wordsArray = words.map((word) => {
     return {
       ...word,
-      text: word.text.split(""),
+      text: word.text.split(" "),
     };
   });
 
@@ -27,8 +27,13 @@ export const TypewriterEffectSmooth = ({
                 >
                   {char}
                 </span>
+                
               ))}
+              <span className={cn(`dark:text-white text-black`, word.className)}>
+              &nbsp;
+            </span>
             </div>
+            
           );
         })}
       </div>
