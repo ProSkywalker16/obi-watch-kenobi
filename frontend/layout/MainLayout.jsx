@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { Icon } from 'lucide-react';
 import Float from '../components/Float';
 
 const MainLayout = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('isAuthenticated') === 'true');
+  const location = useLocation();
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -13,19 +13,18 @@ const MainLayout = () => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const isHomePage = location.pathname === '/';
 
   return (
     <div className="flex">
-      {isAuthenticated && <Sidebar />}
+      {isAuthenticated && !isHomePage && <Sidebar />}
       <div className="flex-1">
         <Outlet />
       </div>
-      { isAuthenticated && <Float />}
+      {isAuthenticated && !isHomePage && <Float />}
     </div>
   );
 };
