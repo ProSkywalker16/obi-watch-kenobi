@@ -27,8 +27,7 @@ def send_email(to_email, subject, body):
         return False
     return True
 
-def send_verification_email(to_email):
-    subject = "Password Reset Request: Your Verification Code"
+def send_verification_email(to_email, subject):
     # Generate a random 6-digit verification code
     alphanum_code = generate_verification_code()
     body = f"Your verification code is: {alphanum_code}\n\nPlease use this code to reset your password."
