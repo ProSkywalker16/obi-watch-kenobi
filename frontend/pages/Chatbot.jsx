@@ -71,19 +71,20 @@ function ChatBot() {
   };
 
   // Send prompt to API
-  const handleResponse = async () => {
-    if (!prompt.trim() || loading) return;
+  const handleResponse = async (input = null) => {
+    const userInput = input || prompt;
+    if (!userInput.trim() || loading) return;
 
     // Add user message
-    const userMsg = { role: 'user', text: prompt };
+    const userMsg = { role: 'user', text: userInput };
     setMessages(prev => [...prev, userMsg]);
     await addMessage(userMsg);
 
     setLoading(true);
-    setPrompt('');
+    if (!input) setPrompt('');
     
     // Simulate thinking process
-    const steps = simulateThinking(prompt);
+    const steps = simulateThinking(userInput);
     setThinkingSteps(steps);
     
     try {
@@ -91,7 +92,7 @@ function ChatBot() {
       const { data } = await axios.post(
         'http://127.0.0.1:5000/api/chat',
         { 
-          question: prompt,
+          question: userInput,
           context: messages.slice(-3).map(m => m.text).join('\n')
         },
         { timeout: 30000 }
@@ -136,12 +137,10 @@ function ChatBot() {
     }
   };
 
-  // Handle suggestion click
+  // Handle suggestion click - now triggers immediate response
   const handleSuggestionClick = (suggestion) => {
-    setPrompt(suggestion);
-    setTimeout(() => {
-      document.querySelector('input').focus();
-    }, 100);
+    // Immediately process the suggestion without updating the input field
+    handleResponse(suggestion);
   };
 
   // Enter key handler
@@ -207,7 +206,7 @@ function ChatBot() {
                     <button
                       key={i}
                       onClick={() => handleSuggestionClick(suggestion)}
-                      className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                      className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-transform hover:scale-105"
                     >
                       {suggestion}
                     </button>
@@ -275,7 +274,7 @@ function ChatBot() {
           disabled={loading}
         />
         <button
-          onClick={handleResponse}
+          onClick={() => handleResponse()}
           disabled={loading || !prompt.trim()}
           className="bg-blue-600 hover:bg-blue-700 font-semibold px-4 py-3 rounded-xl disabled:opacity-50 flex items-center"
         >
