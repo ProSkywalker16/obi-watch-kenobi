@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {Eye, EyeOff} from 'lucide-react';
 
 const AuthForm = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const AuthForm = () => {
   const [askSecretCode, setAskSecretCode] = useState(false); // NEW: whether to ask secret code
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
@@ -198,24 +200,42 @@ const AuthForm = () => {
             className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
           />
           {!forgotPassword && (
+          <div className="relative w-full max-w-md">
           <input
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
           />
+          <button
+            type="button"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-600"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={20} color="white" /> : <Eye size={20} color="white" />}
+          </button>
+          </div>
           )}
           {isRegistering && !askSecretCode && (
+            <div className="relative w-full max-w-md">
             <input
               name="confirmPassword"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={form.confirmPassword}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full bg-purple-600 text-white placeholder-gray-300 focus:outline-none"
             />
+            <button
+              type="button"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-600"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <EyeOff size={20} color="white" /> : <Eye size={20} color="white" />}
+            </button>
+            </div>
           )}
 
           {/* Show secret code input only after user presses Register and passwords match */}
