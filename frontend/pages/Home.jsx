@@ -5,7 +5,7 @@ import { TypewriterEffectSmooth } from '../components/ui/typewriter-effect';
 import { motion } from 'framer-motion';
 import { TerminalSquare } from 'lucide-react';
 import GlobeDemo from '../components/ui/globe';
-import { EvervaultCard } from '../components/ui/evervault-card';
+//import { EvervaultCard } from '../components/ui/evervault-card';
 
 function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

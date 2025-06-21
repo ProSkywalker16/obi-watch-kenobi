@@ -9,6 +9,7 @@ import {
   Legend,
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
 
 // Register radar chart components
 ChartJS.register(
@@ -21,6 +22,7 @@ ChartJS.register(
 );
 
 const Actions = () => {
+  const navigate = useNavigate();
   const [actions, setActions] = useState([]);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState("");
@@ -43,6 +45,13 @@ const Actions = () => {
       console.error(err);
       setError("Could not load actions.");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem("username");
+    window.dispatchEvent(new Event('storage'));
+    navigate('/');
   };
 
   // Map severity to color
@@ -94,9 +103,9 @@ const Actions = () => {
         },
         pointLabels: {
           font: {
-    size: 16, // ✅ Increase this value as needed
-    weight: 'bold', // (optional) for emphasis
-  },
+            size: 16, // ✅ Increase this value as needed
+            weight: 'bold', // (optional) for emphasis
+          },
           color: "#ffffff",
         },
         grid: {
@@ -122,23 +131,28 @@ const Actions = () => {
             Last updated: {lastUpdate || "Loading..."}
           </p>
         </div>
+        <button
+          onClick={handleLogout}
+          className="bg-yellow-500 hover:bg-yellow-600 text-beige px-3 py-2 rounded mt-2 md:mt-0"
+        >
+          Terminate Session
+        </button>
       </header>
 
       {error ? (
         <p className="text-red-400">{error}</p>
       ) : (
         <>
-
           <div className="flex flex-col md:flex-row gap-6">
             {/* Radar Chart */}
             <div className="w-full md:w-3/8 bg-[#19163F] p-4 rounded shadow-md flex items-center justify-center h-[28rem]">
-  <div className="text-center">
-    <h2 className="text-2xl font-semibold mb-4">Severity Radar Chart</h2>
-    <div className="w-[24rem] h-[24rem] mx-auto">
-      <Radar data={radarData} options={radarOptions} />
-    </div>
-  </div>
-</div>
+              <div className="text-center">
+                <h2 className="text-2xl font-semibold mb-4">Severity Radar Chart</h2>
+                <div className="w-[24rem] h-[24rem] mx-auto">
+                  <Radar data={radarData} options={radarOptions} />
+                </div>
+              </div>
+            </div>
             {/* Table */}
             <div className="w-full md:w-5/8 overflow-x-auto bg-gradient-to-r from-[#15102d] to-[#1b1137] p-4 rounded shadow-2xl shadow-black">
               <table className="min-w-full text-sm text-left border border-white/20 text-white">
@@ -180,10 +194,7 @@ const Actions = () => {
                 </tbody>
               </table>
             </div>
-
-
           </div>
-
         </>
       )}
 
