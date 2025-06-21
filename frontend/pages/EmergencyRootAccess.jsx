@@ -80,6 +80,7 @@ function EmergencyRootAccess() {
     return (
         <div className="h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a23] to-[#1c1c3c] p-6">
             <div className="bg-white/10 backdrop-blur-md rounded-2xl flex w-full max-w-md flex-col items-center p-8 space-y-6">
+                {!accessGranted && (<section>
                 <img src="/logo.jpg" alt="Obi‑Watch‑Kenobi Logo" className="w-35 h-35 mb-4" />
                 <h2 className="text-3xl font-bold text-white">
                     Temporary Root Access
@@ -87,9 +88,9 @@ function EmergencyRootAccess() {
                 <p className="text-white text-center">
                     This feature is intended for <strong>emergency</strong> situations only. Use with caution.
                 </p>
-                {!accessGranted && (<p className="text-white text-center">
+                <p className="text-white text-center">
                     Verify your identity for security purposes. This action will grant you temporary root access to the system.
-                </p>)}
+                </p>
                 {message && (
                 <div className="text-green-400 bg-green-900/30 px-4 py-2 rounded">
                     {message}
@@ -136,9 +137,10 @@ function EmergencyRootAccess() {
                         {userExists ? (isEmailVerified ? "Access Granted" : "Verify Code") : "Verify User"}
                     </button>
                 </div>
-                {accessGranted && (<div id="popupModal" class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-90 z-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-                    <h2 class="text-xl font-semibold mb-4">Root Access Credentials</h2>
+                </section>)}
+                {accessGranted && (<div id="popupModal" className="bg-slate-800 inset-0 flex items-center justify-center backdrop-blur bg-opacity-90 z-50">
+                <div className="text-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+                    <h2 className="text-xl font-semibold mb-4">Root Access Credentials</h2>
                     <p>Your temporary root access has been granted. Please use it responsibly.</p>
                     <p>Remember them. These are not saved in the database.</p>
                     <br />
