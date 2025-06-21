@@ -15,6 +15,7 @@ import {
   Wrench,
 } from "lucide-react";
 import Footer from '../components/Footer';
+import Pricing from '../components/Pricing';
 
 const images = ["/image1.png", "/image2.png", "/image3.png"];
 
@@ -303,6 +304,7 @@ function Home() {
               </div>
             </div>
           </div>
+          <Pricing></Pricing>
           <Footer/>
         </div>
       )}
