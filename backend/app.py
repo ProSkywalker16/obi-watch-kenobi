@@ -8,7 +8,7 @@ import hashlib
 from google import genai
 import secrets
 from utils.ipinfofetcher import getIPDetails
-from utils.forgot_password import send_verification_email
+from utils.otp_email_verify import send_verification_email
 from datetime import timedelta, datetime
 # ─── Imports ──────────────────────────────────────────────────────────────────
 
