@@ -59,7 +59,7 @@ A lightweight, AI-powered **Security Information and Event Management (SIEM)** a
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Setup Preliminaries
 
 ### Prerequisites
 
@@ -68,7 +68,7 @@ A lightweight, AI-powered **Security Information and Event Management (SIEM)** a
 - MariaDB
 - ZeroTier account
 
-### Backend
+### 💾 Backend
 
 ```bash
 cd backend
@@ -103,21 +103,19 @@ Use the provided schema to create the following tables:
 
 To securely connect devices (such as the frontend host, backend server, and database server) over different physical networks, we use ZeroTier — a virtual LAN tool.
 
-### ✅ Step-by-Step Setup Guide
+## ✅ Step-by-Step Setup Guide
 
 ### 1. Install ZeroTier
 Install ZeroTier on all devices you want to connect (e.g., your main server, frontend dev laptop, database host, etc.).
 
-**On Ubuntu/Debian:**
+#### On Ubuntu/Debian
 ```bash
 curl -s https://install.zerotier.com | sudo bash
 sudo zerotier-cli join <your-network-id>
-
-
 ```
 
 
-## On Windows/Mac
+#### On Windows/Mac
 
 1. **Download** ZeroTier from:  
    https://www.zerotier.com/download/
@@ -126,7 +124,7 @@ sudo zerotier-cli join <your-network-id>
 
 ---
 
-## Create or Use a ZeroTier Network
+### 2. Create or Use a ZeroTier Network
 
 1. Go to [my.zerotier.com](https://my.zerotier.com)  
 2. Log in and click **Create a Network**  
@@ -137,7 +135,7 @@ sudo zerotier-cli join <your-network-id>
 
 ---
 
-## Authorize Devices
+### 3. Authorize Devices
 
 Once devices have joined the network:
 
@@ -146,53 +144,80 @@ Once devices have joined the network:
 
 ---
 
-## Verify Connection
+### 4. Verify Connection
 
 On each device, run:
 
 ```bash
 zerotier-cli listpeers
 ifconfig    # or `ip a` to see the ZeroTier-assigned IP (e.g., 192.168.x.x)
-
-
 ```
 Then ping between machines to confirm connectivity:
 
 ```
 ping <zerotier-ip-of-other-device>
 ```
-### Configure Firewall (Optional but Recommended)
+### 5. Configure Firewall (Optional but Recommended)
 
+#### 5.1
 To allow proper communication, open the following ports in UFW or your preferred firewall:
 
 Flask Backend (e.g., port 5000):
 ```
-sudo ufw allow from <zerotier-subnet> 
- 
-```
-``` to any port 5000 ``` 
+sudo ufw allow from <zerotier-subnet> to any port 5000
+``` 
 
 MariaDB (default port 3306) if accessed remotely:
 
 ```
 sudo ufw allow from <zerotier-subnet> to any port 3306
-
 ```
+
+#### 5.2
 Replace <zerotier-subnet> with your network range (e.g., 192.168.192.0/24).
 
+#### 5.3
 Start Your Services
+
 Once ZeroTier connections are active:
+* Start the Flask backend on the server:
+    ```python backend/app.py```
 
-Start the Flask backend on the server:
+* Start the frontend:
+    ```
+    cd frontend
+    npm run dev
+    ```
 
-bash
-Copy
-Edit
-python app.py
-Start the frontend:
+* Ensure MariaDB is running and accessible over the ZeroTier network.
 
-bash
-Copy
-Edit
-npm run dev
-Ensure MariaDB is running and accessible over the ZeroTier network.
+---
+
+## 🔧 Automated Threat Response Playbook
+
+This repository contains an automated security playbook designed to detect and react to suspicious activities on a system. Think of it as an intelligent security guard that's always watching and ready to take action.
+
+### How it works (The "Brain" behind the Guard)
+
+Our system operates in a continuous loop, like a diligent watchman:
+
+* **Listens for Alerts**: Every few seconds, it quickly checks the most recent system logs (like a security camera reviewing the last few moments).
+* **Identifies the Threat**: For each suspicious log entry, it figures out:
+* **Who**: Which IP address (the unique internet address of a computer) was involved.
+* **What**: What kind of suspicious activity was detected (e.g., someone trying to get in without permission, scanning for weaknesses, creating unexpected files, or changing important files).
+* **How serious**: How critical is this threat (e.g., minor, high alert, or critical).
+* **Takes Action**: The "Playbook":
+* **Records Everything**: First, it always writes down what happened – who did what, when, and how serious it was. This is like keeping a detailed incident report.
+* **Sends an SOS**: For important threats, it immediately sends an email alert to the security team, so humans are aware.
+* **Fights Back (Automated Responses)**: This is where the real "playbook" comes in. Based on what it detected, it takes specific, automated steps:
+* **Unauthorized Access**: If an unknown computer tries to log in, it will block that computer's IP address from accessing the system. If that same computer keeps trying multiple times, it gets "quarantined" – a more severe isolation to prevent further harm.
+* **Network Scans (Nmap Scan)**: If it sees someone actively scanning the system to find weaknesses, it immediately blocks their IP address.
+* **New, Suspicious Files**: If an unexpected new file appears (which could be malware), the system automatically deletes that file. If the source of that file is a repeat offender, their IP also gets quarantined.
+* **File Tampering**: If an important system file is unexpectedly changed, the playbook tries to revert that file back to its original, safe version using a backup. If the source of the tampering is a repeat offender, their IP also gets quarantined.
+
+### Why is this useful?
+
+* **Speed**: It reacts to threats much faster than a human can, potentially stopping attacks before they cause significant damage.
+* **Consistency**: It applies the same security rules every time, reducing human error.
+* **Efficiency**: Automates routine responses, freeing up security analysts to focus on more complex threats.
+* **Layered Defense**: Combines alerting, logging, and active countermeasures for a more robust security posture.
