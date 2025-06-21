@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { addMessage, getAllMessages, clearMessages } from '../db.js';  // Dexie helpers
+import { SendHorizonal } from 'lucide-react';
 
 function ChatBot() {
   const [prompt, setPrompt] = useState('');
@@ -141,7 +142,7 @@ function ChatBot() {
           disabled={loading || !prompt.trim()}
           className="bg-blue-600 hover:bg-blue-700 font-semibold px-4 py-2 rounded-xl disabled:opacity-50"
         >
-          Send
+          <SendHorizonal />
         </button>
       </div>
 
