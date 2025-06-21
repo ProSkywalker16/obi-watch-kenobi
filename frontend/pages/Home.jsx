@@ -14,6 +14,7 @@ import {
   EyeOff,
   Wrench,
 } from "lucide-react";
+import Footer from '../components/Footer';
 
 const images = ["/image1.png", "/image2.png", "/image3.png"];
 
@@ -170,42 +171,42 @@ function Home() {
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <ShieldCheck className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">System Security</h3>
-                <p className="text-gray-300">Robust defense against threats with real-time monitoring and AI-driven anomaly detection.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi safeguards systems with real-time monitoring and AI-powered anomaly detection, ensuring swift threat detection and proactive defense.</p>
               </div>
 
               {/* Card 2: Portability */}
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <Laptop2 className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">Portability</h3>
-                <p className="text-gray-300">Lightweight and container-friendly—deploy anywhere from edge devices to enterprise cloud.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi runs seamlessly across platforms, ensuring consistent performance and diagnostics in any environment—cloud, on-premises, or edge.</p>
               </div>
 
               {/* Card 3: Compatibility (Linux Servers) */}
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <Server className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">Compatibility (Linux Servers)</h3>
-                <p className="text-gray-300">Seamlessly integrates with all major Linux distributions and server stacks.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi is Linux-optimized for seamless integration, low resource use, and deep system-level diagnostics across major distributions.</p>
               </div>
 
               {/* Card 4: Cost Effective */}
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <DollarSign className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">Cost Effective</h3>
-                <p className="text-gray-300">Open-source core and scalable design reduce infrastructure and licensing costs.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi offers powerful diagnostics and monitoring with minimal resource use—delivering high value at low cost.</p>
               </div>
 
               {/* Card 5: Privacy */}
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <EyeOff className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">Privacy</h3>
-                <p className="text-gray-300">Your data stays yours—no hidden tracking or analytics. Fully GDPR-compliant.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi ensures data privacy with secure diagnostics and monitoring, preventing unauthorized access or leaks.</p>
               </div>
 
               {/* Card 6: Easy to Maintain */}
               <div className="bg-slate-800 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/30 transition-shadow duration-300">
                 <Wrench className="w-8 h-8 mx-auto text-cyan-400 mb-3" />
                 <h3 className="text-xl font-semibold text-cyan-400 mb-2">Easy to Maintain</h3>
-                <p className="text-gray-300">Simple configuration, auto-updates, and developer-friendly CLI tools streamline operations.</p>
+                <p className="text-gray-300">Obi‑Watch‑Kenobi’s modular design ensures easy updates, quick fixes, and low maintenance overhead.</p>
               </div>
             </div>
           </div>
@@ -294,9 +295,7 @@ function Home() {
               </div>
             </div>
           </div>
-
-
-
+          <Footer/>
         </div>
       )}
 
