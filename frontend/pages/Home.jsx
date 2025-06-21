@@ -23,8 +23,8 @@ function Home() {
   const navigate = useNavigate();
 
   const words = [
-    { text: 'AI-Powered' }, { text: 'EDR' }, { text: 'and' },
-    { text: 'SIEM' }, {text:'with '}, { text: 'Advanced' }, { text: 'Visualisation' }
+    { text: 'Your' }, { text: ' assumptions' }, { text: ' can' },
+    { text: ' deceive' }, {text:' you.'}, { text: ' ' }, { text: 'Trust ' }, { text: 'the ' }, { text: 'logs! ' }
   ];
 
   useEffect(() => {
@@ -138,7 +138,7 @@ function Home() {
           <div className="mt-28 py-16 text-white text-center">
             <h2 className="text-4xl font-bold mb-4">Seamless Monitoring. Limitless Control.</h2>
             <p className="max-w-2xl mx-auto text-lg mb-12 text-gray-300">
-              Obi‑Watch‑Kenobi is your all-seeing sentinel. Designed for precision, speed, and security, it empowers developers and analysts with real-time system visibility and intelligent diagnostics.
+              Hello there! This is Master Obi‑Watch‑Kenobi, your all-seeing sentinel. Designed for precision, speed, and security, it empowers developers and analysts with real-time system visibility and intelligent diagnostics.
             </p>
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-10 max-w-6xl mx-auto px-4 py-8">
