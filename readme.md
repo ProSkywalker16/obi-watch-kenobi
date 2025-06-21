@@ -221,3 +221,13 @@ Our system operates in a continuous loop, like a diligent watchman:
 * **Consistency**: It applies the same security rules every time, reducing human error.
 * **Efficiency**: Automates routine responses, freeing up security analysts to focus on more complex threats.
 * **Layered Defense**: Combines alerting, logging, and active countermeasures for a more robust security posture.
+
+---
+
+## Contributors
+
+This is team MadMaxDevelopers
+* [Promit Chaudhuri](https://github.com/ProSkywalker16)
+* [Sankhadeep Bhowmik](https://github.com/Sankhadeep-Bhowmik)
+* [Anurag Bhattacharjee](https://github.com/DarkmodeWorking)
+* [Shivaditya Bhattacharya](https://github.com/RichPerspective007)
